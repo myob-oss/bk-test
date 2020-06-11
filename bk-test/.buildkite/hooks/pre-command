@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# this is a global hook; only exit non-zero if _critical_.
+die() { echo "${1:-error}" >&2; exit 0; }
+
+hash aws 2>/dev/null || die "--- :broken_heart: missing dep: aws"
+hash jq  2>/dev/null || die "--- :broken_heart: missing dep: jq"
+
+# use a local grep for the cloudsmith token but fail softly.
+tok=$(grep api_key "$HOME/.config/cloudsmith/credentials.ini"|cut -d= -f2) || tok=""
+[[ "$tok" == "" ]] && die "--- :broken_heart: not logged into cloudsmith"
+usr=$(grep username "$HOME/.config/cloudsmith/credentials.ini"|cut -d= -f2) || usr=""
+[[ $usr == "" ]] && die "--- :broken_heart: not logged into cloudsmith"
+
+rm -f "$HOME/.ivy2/.credentials.dl.myob.com" 2>/dev/null
+cat <<! > "$HOME/.ivy2/.credentials.dl.myob.com"
+realm=Private Repository
+host=dl.myob.com
+user=$usr
+password=$tok
+!
+
