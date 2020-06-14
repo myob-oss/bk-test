@@ -9,6 +9,6 @@ for i in tests/*.sh; do
   - label: ':bash: $i'
     command: $i
     agents:
-      queue: ${QUEUE:-dnp-lab}
+      queue: ${QUEUE:-dnp-oss}
 !
 done
