@@ -17,6 +17,10 @@ dc=$( aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name "$a
   | jq -r '.AutoScalingGroups[].DesiredCapacity' ) \
   || die "can't get desired capacity"
 
+echo "~~~ sleeping for 60 seconds"
+
 sleep 60
+
+echo "~~~ done sleeping"
 
 [[ "$dc" == 1 ]] && echo "one agent running" || die "desired count is $dc, check scale down"
