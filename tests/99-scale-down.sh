@@ -18,10 +18,6 @@ echo "got scale down"
 asg=$( jq -r '.Reservations[].Instances[].Tags[] | select ( .Key | contains ("aws:autoscaling:groupName")) | .Value' <<<"$ec2" ) \
   || die "can't get asg name"
 echo "got asg name"
-dc=$( aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name "$asg" \
-  | jq -r '.AutoScalingGroups[].DesiredCapacity' ) \
-  || die "can't get desired capacity"
-echo "got desired capacity"
 
 echo "~~~ sleeping for $((sdp*3)) seconds"
 
@@ -29,4 +25,7 @@ sleep $((sdp*3))
 
 echo "~~~ done sleeping"
 
+dc=$( aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name "$asg" \
+  | jq -r '.AutoScalingGroups[].DesiredCapacity' ) \
+  || die "can't get desired capacity"
 [[ "$dc" == 1 ]] && echo "one agent running" || die "desired count is $dc, check scale down"
