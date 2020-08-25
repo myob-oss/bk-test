@@ -12,6 +12,11 @@ echo "got instance info"
 q=$( jq -r '.Reservations[].Instances[].Tags[] | select ( .Key | contains ("BuildkiteQueue")) | .Value' <<<"$ec2" ) \
   || die "can't get queue name"
 echo "got queue name: $q"
+
+e=$(aws ssm get-parameter --name "/bk/$q/Ephemeral" --query Parameter.Value --output text 2>/dev/null) \
+    || die "queue is not ephemeral, can't test scale-down" 0
+[[ "$e" == true ]] || die "queue is not ephemeral, can't test scale-down" 0
+
 sdp=$(aws ssm get-parameter --name "/bk/$q/ScaleDownPeriod" --query Parameter.Value --output text) \
   || die "can't get scale down period"
 echo "got scale down: $sdp"
